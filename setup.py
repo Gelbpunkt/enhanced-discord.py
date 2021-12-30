@@ -54,7 +54,7 @@ packages = [
 ]
 
 setup(
-    name="discord.py",
+    name="enhanced-discord.py",
     author="Rapptz",
     url="https://github.com/Rapptz/discord.py",
     project_urls={
