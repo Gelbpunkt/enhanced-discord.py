@@ -482,16 +482,14 @@ def _bytes_to_base64_data(data: bytes) -> str:
 
 
 if HAS_ORJSON:
-
-    def _to_json(obj: Any) -> str:  # type: ignore
-        return orjson.dumps(obj).decode("utf-8")
+    _to_json = orjson.dumps  # type: ignore
 
     _from_json = orjson.loads  # type: ignore
 
 else:
 
     def _to_json(obj: Any) -> str:
-        return json.dumps(obj, separators=(",", ":"), ensure_ascii=True)
+        return json.dumps(obj, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
 
     _from_json = json.loads
 

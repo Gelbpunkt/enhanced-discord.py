@@ -529,7 +529,7 @@ class HTTPClient:
             )
 
         payload["attachments"] = attachments
-        form.append({"name": "payload_json", "value": utils._to_json(payload)})
+        form.append({"name": "payload_json", "value": utils._to_json(payload).decode("utf-8")})
         return self.request(route, form=form, files=files)
 
     def send_files(self, channel_id: Snowflake, *, files: Sequence[File], **fields: Any) -> Response[message.Message]:
