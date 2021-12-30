@@ -577,6 +577,7 @@ class ConnectionState:
         self.dispatch("resumed")
 
     def parse_message_create(self, data) -> None:
+        self.dispatch("raw_message_create", data)
         channel, _ = self._get_guild_channel(data)
         # channel would be the correct type here
         message = Message(channel=channel, data=data, state=self)  # type: ignore
@@ -702,6 +703,7 @@ class ConnectionState:
                     self.dispatch("reaction_clear_emoji", reaction)
 
     def parse_interaction_create(self, data) -> None:
+        self.dispatch("raw_interaction", data)
         interaction = Interaction(data=data, state=self)
         if data["type"] == 3:  # interaction component
             custom_id = interaction.data["custom_id"]  # type: ignore
@@ -981,6 +983,7 @@ class ConnectionState:
             _log.debug("GUILD_MEMBER_REMOVE referencing an unknown guild ID: %s. Discarding.", data["guild_id"])
 
     def parse_guild_member_update(self, data) -> None:
+        self.dispatch("raw_member_update", data)
         guild = self._get_guild(int(data["guild_id"]))
         user = data["user"]
         user_id = int(user["id"])
