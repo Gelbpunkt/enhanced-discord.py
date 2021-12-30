@@ -486,7 +486,6 @@ class DiscordWebSocket:
             if len(msg) < 4 or msg[-4:] != b"\x00\x00\xff\xff":
                 return
             msg = self._zlib.decompress(self._buffer)
-            msg = msg.decode("utf-8")
             self._buffer = bytearray()
 
         self.log_receive(msg)
