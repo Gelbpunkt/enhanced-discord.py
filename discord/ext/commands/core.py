@@ -64,6 +64,7 @@ from .converter import (
     Greedy,
     Option,
 )
+from .default import CustomDefault
 from ._types import _BaseCommand
 from .cog import Cog
 from .context import Context
@@ -627,6 +628,19 @@ class Command(_BaseCommand, Generic[CogT, P, T]):
         finally:
             ctx.bot.dispatch("command_error", ctx, error)
 
+    async def _resolve_default(self, ctx, param):
+        try:
+            if inspect.isclass(param.default) and issubclass(param.default, CustomDefault):
+                instance = param.default()
+                return await instance.default(ctx=ctx, param=param)
+            elif isinstance(param.default, CustomDefault):
+                return await param.default.default(ctx=ctx, param=param)
+        except CommandError as e:
+            raise e
+        except Exception as e:
+            raise ConversionError(param.default, e) from e
+        return param.default
+
     async def transform(self, ctx: Context, param: inspect.Parameter) -> Any:
         if param in ctx._ignored_params:
             # in a slash command, we need a way to mark a param as default so ctx._ignored_params is used
@@ -660,7 +674,7 @@ class Command(_BaseCommand, Generic[CogT, P, T]):
                 if hasattr(converter, "__commands_is_flag__") and converter._can_be_constructible():
                     return await converter._construct_default(ctx)
                 raise MissingRequiredArgument(param)
-            return param.default
+            return await self._resolve_default(ctx, param)
 
         previous = view.index
         if consume_rest_is_special:
@@ -712,7 +726,7 @@ class Command(_BaseCommand, Generic[CogT, P, T]):
             view.index = previous
             raise RuntimeError() from None  # break loop
         else:
-            return value
+            return value or await self._resolve_default(ctx, param)
 
     @property
     def clean_params(self) -> Dict[str, inspect.Parameter]:

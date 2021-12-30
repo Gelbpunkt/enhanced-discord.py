@@ -44,6 +44,7 @@ from typing import (
 )
 
 import discord
+from .default import CustomDefault
 from .errors import *
 
 if TYPE_CHECKING:
@@ -600,7 +601,7 @@ class ColourConverter(Converter[discord.Colour]):
         Add an alias named ColorConverter
 
     The following formats are accepted:
-    
+
     - ``<hex>``
     - ``0x<hex>``
     - ``#<hex>``
@@ -1071,10 +1072,12 @@ def _convert_to_bool(argument: str) -> bool:
 def get_converter(param: inspect.Parameter) -> Any:
     converter = param.annotation
     if converter is param.empty:
-        if param.default is not param.empty:
-            converter = str if param.default is None else type(param.default)
-        else:
+        if param.default is param.empty or param.default is None:
             converter = str
+        elif (inspect.isclass(param.default) and issubclass(param.default, CustomDefault)) or isinstance(param.default, CustomDefault):
+            converter = Union[param.default.converters]
+        else:
+            converter = type(param.default)
     return converter
 
 
