@@ -99,6 +99,8 @@ class _MissingSentinel:
     def __repr__(self):
         return "..."
 
+    def __hash__(self):
+        return 0
 
 MISSING: Any = _MissingSentinel()
 
