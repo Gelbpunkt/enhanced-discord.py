@@ -398,8 +398,8 @@ class DiscordWebSocket:
                 "token": self.token,
                 "properties": {
                     "$os": sys.platform,
-                    "$browser": "discord.py",
-                    "$device": "discord.py",
+                    "$browser": "enhanced-discord.py",
+                    "$device": "enhanced-discord.py",
                     "$referrer": "",
                     "$referring_domain": "",
                 },
